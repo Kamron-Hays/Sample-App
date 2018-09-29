@@ -6,7 +6,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     # users path, but it is included to verify that the signup form renders
     # without error
     get signup_path
-    assert_select "form[action='/users']"
+    assert_select "form[action='/signup']"
 
     # The following will test User.count both before and after posting the data
     # and verify they are the same.
