@@ -25,4 +25,22 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert_select 'div.alert'
     assert_select 'div.alert-danger'
   end
+
+  test "valid signup information" do
+    get signup_path
+    assert_difference 'User.count', 1 do # the 2nd argument is the expected size of the difference
+      post users_path, params: { user: { name:  "Example User",
+                                         email: "user@example.com",
+                                         password:              "password",
+                                         password_confirmation: "password" } }
+    end
+    # Follow the redirect after submission, which will result
+    # in a rendering of the 'users/show' template
+    follow_redirect!
+    # Verify the #show action is rendered
+    assert_template 'users/show'
+    # Verify some sort of flash display happened. A more detailed test is likely
+    # to be easily broken (brittle).
+    assert_not flash.nil?
+  end
 end
