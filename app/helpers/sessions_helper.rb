@@ -10,18 +10,43 @@ module SessionsHelper
 
   # Logs out the current user.
   def log_out
+    forget(current_user)
     session.delete(:user_id)
     @current_user = nil
+  end
+
+  # Remembers a user in a persistent session.
+  def remember(user)
+    user.remember
+    # The "permanent" method is shorthand for
+    # The "signed" method encrypts the user_id, since cookies are not themselves encrypted
+    cookies.permanent.signed[:user_id] = user.id
+    cookies.permanent[:remember_token] = user.remember_token
+  end
+
+  # Forgets a persistent session.
+  def forget(user)
+    user.forget
+    cookies.delete(:user_id)
+    cookies.delete(:remember_token)
   end
 
   # Returns the current logged-in user (if any), nil otherwise.
   def current_user
     # Only perform the database search if user_id is NOT nil
     # (i.e. someone is logged in).
-    if session[:user_id]
+    if (user_id = session[:user_id])
       # Only perform the database search if @current_user is nil.
       # This prevents multiple hits on the database.
-      @current_user ||= User.find_by(id: session[:user_id])
+      @current_user ||= User.find_by(id: user_id)
+    # If user is not signed in, automatically sign them in
+    # if they're "remembered" from a previous sign-in.
+    elsif (user_id = cookies.signed[:user_id])
+      user = User.find_by(id: user_id)
+      if user && user.authenticated?(cookies[:remember_token])
+        log_in user
+        @current_user = user
+      end
     end
   end
 

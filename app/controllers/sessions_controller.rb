@@ -8,6 +8,7 @@ class SessionsController < ApplicationController
 
     if user && user.authenticate(params[:session][:password])
       log_in user
+      remember user
       # The next statement is shorthand for 'redirect_to user_url(user)'
       redirect_to user
     else
@@ -20,7 +21,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    log_out
+    log_out if logged_in?
     redirect_to root_url
   end
 end
