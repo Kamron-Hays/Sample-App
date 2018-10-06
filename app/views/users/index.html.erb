@@ -1,6 +1,13 @@
 <% provide(:title, 'All users') %>
 <% provide(:heading, 'All users') %>
 
+<!-- The will_paginate method is a little magical; inside a users view, it
+     automatically looks for a @users object, and then displays pagination
+     links to access other pages. This method also requires that the results
+     be paginated explicitly using the paginate method in app/controllers/
+     users_controller.rb -->
+<%= will_paginate %>
+
 <ul class="users">
   <% @users.each do |user| %>
     <li>
@@ -9,3 +16,5 @@
     </li>
   <% end %>
 </ul>
+
+<%= will_paginate %>
