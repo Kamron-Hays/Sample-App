@@ -30,6 +30,11 @@ module SessionsHelper
     cookies.delete(:remember_token)
   end
 
+  # Returns true if the given user is the current user.
+  def current_user?(user)
+    user == current_user
+  end
+
   # Returns the current logged-in user (if any), nil otherwise.
   def current_user
     # Only perform the database search if user_id is NOT nil
