@@ -8,7 +8,9 @@ class User < ApplicationRecord
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: { case_sensitive: false } # rails infers that uniqueness should be true as well
   has_secure_password
-  validates :password, presence: true, length: { minimum: 6 }
+  # When editing user info, allow the password fields to be blank. For new users,
+  # the above "has_secure_password" statement will still check for presence.
+  validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
 
   # Returns the hash digest of the given string. Placed here for reuse with
   # the User model.
