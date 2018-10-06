@@ -9,8 +9,8 @@ class SessionsController < ApplicationController
     if user && user.authenticate(params[:session][:password])
       log_in user
       params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-      # The next statement is shorthand for 'redirect_to user_url(user)'
-      redirect_to user
+      # redirect_back_or is a helper function in app/helpers/sessions_helper.rb
+      redirect_back_or user
     else
       # Rendering a template doesn't count as a request, so need to use flash.now
       # If just flash were used, the error message would persist into the next

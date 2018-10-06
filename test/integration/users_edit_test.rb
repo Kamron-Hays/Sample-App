@@ -41,4 +41,29 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_equal name,  @user.name
     assert_equal email, @user.email
   end
+
+  test "successful edit with friendly forwarding" do
+    # Try to edit user witout being logged in
+    get edit_user_path(@user)
+    # Now login
+    log_in_as(@user)
+    # Verify "friendly forward" to edit page (instead of going to
+    # the user profile page).
+    assert_redirected_to edit_user_url(@user)
+    name  = "Foo Bar"
+    email = "foo@bar.com"
+    patch user_path(@user), params: { user: { name:  name,
+                                              email: email,
+                                              password:              "",
+                                              password_confirmation: "" } }
+    # Confirm the flash is not empty
+    assert_not flash.empty?
+    # Confirm successful redirect to the profile page
+    assert_redirected_to @user
+    # Reload the user’s values from the database
+    @user.reload
+    # Confirm name and email have been updated
+    assert_equal name,  @user.name
+    assert_equal email, @user.email
+  end
 end
