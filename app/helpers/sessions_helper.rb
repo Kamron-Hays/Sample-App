@@ -18,7 +18,6 @@ module SessionsHelper
   # Remembers a user in a persistent session.
   def remember(user)
     user.remember
-    # The "permanent" method is shorthand for
     # The "signed" method encrypts the user_id, since cookies are not themselves encrypted
     cookies.permanent.signed[:user_id] = user.id
     cookies.permanent[:remember_token] = user.remember_token
@@ -42,6 +41,7 @@ module SessionsHelper
     # If user is not signed in, automatically sign them in
     # if they're "remembered" from a previous sign-in.
     elsif (user_id = cookies.signed[:user_id])
+      #raise # used to determine whether a specific branch is exercised in tests
       user = User.find_by(id: user_id)
       if user && user.authenticated?(cookies[:remember_token])
         log_in user
