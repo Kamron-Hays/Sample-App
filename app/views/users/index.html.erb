@@ -1,17 +1,14 @@
 <% provide(:title, 'All users') %>
 <% provide(:heading, 'All users') %>
 
-<!-- The will_paginate method is a little magical; inside a users view, it
-     automatically looks for a @users object, and then displays pagination
-     links to access other pages. This method also requires that the results
-     be paginated explicitly using the paginate method in app/controllers/
-     users_controller.rb -->
 <%= will_paginate %>
 
 <ul class="users">
-  <% @users.each do |user| %>
-    <%= render user %>
-  <% end %>
+  <!-- Here Rails infers that @users is a list of User objects; moreover, when
+       called with a collection of users, Rails automatically iterates through
+       them and renders each one with the _user.html.erb partial (inferring the
+       name of the partial from the name of the class). -->
+  <%= render @users %>
 </ul>
 
 <%= will_paginate %>
