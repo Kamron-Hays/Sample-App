@@ -1,6 +1,11 @@
 require 'test_helper'
 
 class UsersSignupTest < ActionDispatch::IntegrationTest
+
+  def setup
+    ActionMailer::Base.deliveries.clear
+  end
+
   test "invalid signup information" do
     # The following two statements are not required in order to post to the
     # users path, but it is included to verify that the signup form renders
@@ -26,7 +31,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     assert_select 'div.alert-danger'
   end
 
-  test "valid signup information" do
+  test "valid signup information with account activation" do
     get signup_path
     assert_difference 'User.count', 1 do # the 2nd argument is the expected size of the difference
       post users_path, params: { user: { name:  "Example User",
@@ -34,13 +39,33 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                          password:              "password",
                                          password_confirmation: "password" } }
     end
+
+    # Verify exactly one message was delivered. 
+    assert_equal 1, ActionMailer::Base.deliveries.size
+    # The assigns method lets us access instance variables in the corresponding
+    # action. For example, the Users controller’s create action defines a @user
+    # variable, so we can access it in the test using assigns(:user).
+    user = assigns(:user)
+    assert_not user.activated?
+    # Try to log in before activation.
+    log_in_as(user)
+    assert_not is_logged_in?
+    # Invalid activation token
+    get edit_account_activation_path("invalid token", email: user.email)
+    assert_not is_logged_in?
+    # Valid token, wrong email
+    get edit_account_activation_path(user.activation_token, email: 'wrong')
+    assert_not is_logged_in?
+    # Valid activation token
+    get edit_account_activation_path(user.activation_token, email: user.email)
+    assert user.reload.activated?
     # Follow the redirect after submission, which will result
     # in a rendering of the 'users/show' template
     follow_redirect!
     # Verify the #show action is rendered
-    #assert_template 'users/show'
+    assert_template 'users/show'
     # Verify the new user is automatically signed in.
-    #assert is_logged_in?
+    assert is_logged_in?
     # Verify some sort of flash display happened. A more detailed test is likely
     # to be easily broken (brittle).
     assert_not flash.nil?

@@ -7,10 +7,17 @@ class SessionsController < ApplicationController
     user = User.find_by(email: params[:session][:email].downcase)
 
     if user && user.authenticate(params[:session][:password])
-      log_in user
-      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-      # redirect_back_or is a helper function in app/helpers/sessions_helper.rb
-      redirect_back_or user
+      if user.activated?
+        log_in user
+        params[:session][:remember_me] == '1' ? remember(user) : forget(user)
+        # redirect_back_or is a helper function in app/helpers/sessions_helper.rb
+        redirect_back_or user
+      else
+        message  = "Account not activated. "
+        message += "Check your email for the activation link. "
+        flash[:warning] = message
+        redirect_to root_url
+      end
     else
       # Rendering a template doesn't count as a request, so need to use flash.now
       # If just flash were used, the error message would persist into the next
